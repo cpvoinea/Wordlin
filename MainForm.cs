@@ -13,10 +13,8 @@ namespace Wordlin
         const int MAX_WORD_COUNT = 500;
 
         readonly List<string> _allWords = File.ReadAllLines(FILE_NAME).ToList();
+        readonly PositionRule[] _positionRule = new PositionRule[5];
         readonly Dictionary<string, LetterRule> _letterRule = new Dictionary<string, LetterRule>();
-        bool _isUpdatingRule = false;
-
-        LetterRule SelectedRule => lstLetters.SelectedItems.Count != 1 ? null : _letterRule[lstLetters.SelectedItems[0].Text];
 
         public MainForm()
         {
@@ -53,73 +51,38 @@ namespace Wordlin
 
         void ShowWords()
         {
-            lstWords.Items.Clear();
+            lstSuggestions.Items.Clear();
             var activeRules = _letterRule.Values.Where(r => r.IsInclude.HasValue);
             if (!activeRules.Any())
-                lstWords.Items.Add("NO ACTIVE LETTER RULES FOUND");
+                lstSuggestions.Items.Add("NO ACTIVE LETTER RULES FOUND");
             var candidates = new List<string>();
             foreach (string w in _allWords)
                 if (activeRules.All(r => MatchWordToRule(w, r)))
                     candidates.Add(w);
-            if (candidates.Count > 500)
-                lstWords.Items.Add("TOO MANY TO SHOW");
+            if (candidates.Count > MAX_WORD_COUNT)
+                lstSuggestions.Items.Add("TOO MANY TO SHOW");
             else if (candidates.Count == 0)
-                lstWords.Items.Add("NO WORDS FOUND");
+                lstSuggestions.Items.Add("NO WORDS FOUND");
             else
-                lstWords.Items.AddRange(candidates.Select(w => new ListViewItem(w.ToUpper())).ToArray());
-        }
-
-        void ShowColors()
-        {
-            foreach (ListViewItem i in lstLetters.Items)
-            {
-                var rule = _letterRule[i.Text];
-                if (!rule.IsInclude.HasValue)
-                    i.BackColor = Color.White;
-                else if (rule.IsInclude.Value)
-                {
-                    if (!rule.IsPosition.HasValue)
-                        i.BackColor = Color.Yellow;
-                    else if (rule.IsPosition.Value)
-                        i.BackColor = Color.Green;
-                    else
-                        i.BackColor = Color.Orange;
-                }
-                else
-                    i.BackColor = Color.Gray;
-            }
-        }
-
-        void UpdateSelectedRule(LetterRule rule)
-        {
-            if (rule == null)
-                return;
-            _isUpdatingRule = true;
-
-            lblLetter.Text = rule.Letter.ToString().ToUpper();
-            cmbInclude.Enabled = true;
-            cmbInclude.SelectedIndex = rule.IsInclude.HasValue ? (rule.IsInclude.Value ? 1 : 2) : 0;
-            cmbIsPosition.Enabled = rule.IsInclude == true;
-            cmbIsPosition.SelectedIndex = rule.IsPosition.HasValue ? (rule.IsPosition.Value ? 1 : 2) : 0;
-            cmbPosition.Enabled = rule.IsPosition.HasValue;
-            cmbPosition.SelectedIndex = rule.Position;
-            chkIsSecondOccurence.Enabled = rule.IsInclude == true;
-            chkIsSecondOccurence.Checked = rule.IsSecondOccurence;
-            cmbIsSecondPosition.Enabled = rule.IsSecondOccurence;
-            cmbIsSecondPosition.SelectedIndex = rule.IsSecondPosition.HasValue ? (rule.IsSecondPosition.Value ? 1 : 2) : 0;
-            cmbSecondPosition.Enabled = rule.IsSecondPosition.HasValue;
-            cmbSecondPosition.SelectedIndex = rule.SecondPosition;
-
-            _isUpdatingRule = false;
+                lstSuggestions.Items.AddRange(candidates.Select(w => new ListViewItem(w.ToUpper())).ToArray());
         }
 
         void InitializeRules()
         {
-            _letterRule.Clear();
-            foreach (ListViewItem i in lstLetters.Items)
+            for (int i = 0; i < 5; i++)
+                _positionRule[i] = new PositionRule(i);
+        }
+
+        void BindRules()
+        {
+            lstRules.Items.Clear();
+            foreach (var lr in _letterRule.Values)
             {
-                string letter = i.Text;
-                _letterRule.Add(letter, new LetterRule(letter));
+                var d = lr.IsInclude == true ? $"-{lr.Position + 1}" : string.Empty;
+                ListViewItem i = new ListViewItem($"{lr.Letter.ToString().ToUpper()}{d}");
+                i.BackColor = lr.IsInclude == true ? (lr.IsPosition == true ? Color.Green : Color.Yellow) : Color.Gray;
+
+                lstRules.Items.Add(i);
             }
         }
 
@@ -129,131 +92,97 @@ namespace Wordlin
             _allWords.AddRange(File.ReadAllLines(fileName));
         }
 
-        void LoadDictionary()
-        {
-            if (ofdDictionary.ShowDialog(this) == DialogResult.OK)
-            {
-                _allWords.Clear();
-                _allWords.AddRange(File.ReadAllLines(ofdDictionary.FileName));
-            }
-        }
-
         private void MainForm_Load(object sender, EventArgs e)
         {
             InitializeRules();
-            if (File.Exists(FILE_NAME))
-                InitializeDictionary(FILE_NAME);
-            else
-                LoadDictionary();
+            InitializeDictionary(FILE_NAME);
         }
 
-        private void lstLetters_SelectedIndexChanged(object sender, EventArgs e)
+        private void txtGuess_TextChanged(object sender, EventArgs e)
         {
-            ShowColors();
-            var rule = SelectedRule;
-            UpdateSelectedRule(rule);
+            var w = txtGuess.Text.ToUpper();
+            if (w.Length > 0)
+                _positionRule[0].Letter = btnLetter1.Text = w[0].ToString();
+            if (w.Length > 1)
+                _positionRule[1].Letter = btnLetter2.Text = w[1].ToString();
+            if (w.Length > 2)
+                _positionRule[2].Letter = btnLetter3.Text = w[2].ToString();
+            if (w.Length > 3)
+                _positionRule[3].Letter = btnLetter4.Text = w[3].ToString();
+            if (w.Length > 4)
+                _positionRule[4].Letter = btnLetter5.Text = w[4].ToString();
         }
 
-        private void cmbInclude_SelectedIndexChanged(object sender, EventArgs e)
+        private void btnLetter_Click(object sender, EventArgs e)
         {
-            if (_isUpdatingRule)
-                return;
-            var rule = SelectedRule;
-            if (rule == null)
-                return;
+            var c = sender as Button;
+            var pr = _positionRule[c.TabIndex - 1];
+            pr.Letter = c.Text;
+            pr.Rule = (Rule)(((int)pr.Rule + 1) % 3);
+            switch (pr.Rule)
+            {
+                case Rule.Exclude: c.BackColor = Color.White; break;
+                case Rule.Include: c.BackColor = Color.Yellow; break;
+                case Rule.Fixed: c.BackColor = Color.Green; break;
+            }
+        }
 
-            rule.IsInclude = cmbInclude.SelectedIndex == 0 ? (bool?)null : (cmbInclude.SelectedIndex == 1);
-            rule.IsPosition = null;
-            rule.Position = 0;
-            rule.IsSecondOccurence = false;
-            rule.IsSecondPosition = null;
-            rule.SecondPosition = 0;
+        private void btnSetRules_Click(object sender, EventArgs e)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                var pr = _positionRule[i];
+                var exists = _letterRule.ContainsKey(pr.Letter);
+                if (!exists)
+                    _letterRule.Add(pr.Letter, new LetterRule(pr.Letter));
+                var lr = _letterRule[pr.Letter];
+                switch (pr.Rule)
+                {
+                    case Rule.Exclude:
+                        if (!exists)
+                        {
+                            lr.IsInclude = false;
+                        }
+                        break;
+                    case Rule.Include:
+                        if (!exists || lr.IsInclude == false)
+                        {
+                            lr.IsInclude = true;
+                            lr.IsPosition = false;
+                            lr.Position = pr.Position;
+                        }
+                        break;
+                    case Rule.Fixed:
+                        if (!exists || lr.IsInclude == false || lr.IsPosition == false)
+                        {
+                            lr.IsInclude = true;
+                            lr.IsPosition = true;
+                            lr.Position = pr.Position;
+                        }
+                        else if (lr.IsInclude == true && lr.IsPosition == true && lr.Position != pr.Position)
+                        {
+                            lr.IsSecondOccurence = true;
+                            lr.IsSecondPosition = true;
+                            lr.SecondPosition = pr.Position;
+                        }
+                        break;
+                }
+            }
 
-            UpdateSelectedRule(rule);
+            BindRules();
             ShowWords();
         }
 
-        private void cmbIsPosition_SelectedIndexChanged(object sender, EventArgs e)
+        private void btnClearRules_Click(object sender, EventArgs e)
         {
-            if (_isUpdatingRule)
-                return;
-            var rule = SelectedRule;
-            if (rule == null)
-                return;
-
-            rule.IsPosition = cmbIsPosition.SelectedIndex == 0 ? (bool?)null : (cmbIsPosition.SelectedIndex == 1);
-
-            UpdateSelectedRule(rule);
-            ShowWords();
+            _letterRule.Clear();
+            BindRules();
         }
 
-        private void cmbPosition_SelectedIndexChanged(object sender, EventArgs e)
+        private void lstSuggestions_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (_isUpdatingRule)
-                return;
-            var rule = SelectedRule;
-            if (rule == null)
-                return;
-
-            rule.Position = cmbPosition.SelectedIndex;
-
-            UpdateSelectedRule(rule);
-            ShowWords();
-        }
-
-        private void chkIsSecondOccurence_CheckedChanged(object sender, EventArgs e)
-        {
-            if (_isUpdatingRule)
-                return;
-            var rule = SelectedRule;
-            if (rule == null)
-                return;
-
-            rule.IsSecondOccurence = chkIsSecondOccurence.Checked;
-
-            UpdateSelectedRule(rule);
-            ShowWords();
-        }
-
-        private void cmbIsSecondPosition_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (_isUpdatingRule)
-                return;
-            var rule = SelectedRule;
-            if (rule == null)
-                return;
-
-            rule.IsSecondPosition = cmbIsSecondPosition.SelectedIndex == 0 ? (bool?)null : (cmbIsSecondPosition.SelectedIndex == 1);
-
-            UpdateSelectedRule(rule);
-            ShowWords();
-        }
-
-        private void cmbSecondPosition_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (_isUpdatingRule)
-                return;
-            var rule = SelectedRule;
-            if (rule == null)
-                return;
-
-            rule.SecondPosition = cmbSecondPosition.SelectedIndex;
-
-            UpdateSelectedRule(rule);
-            ShowWords();
-        }
-
-        private void btnClear_Click(object sender, EventArgs e)
-        {
-            InitializeRules();
-            ShowColors();
-            ShowWords();
-        }
-
-        private void MainForm_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.KeyCode == Keys.F1)
-                LoadDictionary();
+            if (lstSuggestions.SelectedItems.Count > 0)
+                txtGuess.Text = lstSuggestions.SelectedItems[0].Text;
         }
     }
 }
