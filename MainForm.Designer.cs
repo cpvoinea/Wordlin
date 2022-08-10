@@ -40,7 +40,11 @@
             this.lstRules = new System.Windows.Forms.ListView();
             this.btnClearRules = new System.Windows.Forms.Button();
             this.grpSuggestions = new System.Windows.Forms.GroupBox();
+            this.btnLoad = new System.Windows.Forms.Button();
+            this.btnRemoveWord = new System.Windows.Forms.Button();
             this.lstSuggestions = new System.Windows.Forms.ListView();
+            this.ofdLoad = new System.Windows.Forms.OpenFileDialog();
+            this.btnReset = new System.Windows.Forms.Button();
             this.grpGuesses.SuspendLayout();
             this.grpRules.SuspendLayout();
             this.grpSuggestions.SuspendLayout();
@@ -48,6 +52,7 @@
             // 
             // grpGuesses
             // 
+            this.grpGuesses.Controls.Add(this.btnReset);
             this.grpGuesses.Controls.Add(this.btnSetRules);
             this.grpGuesses.Controls.Add(this.btnLetter5);
             this.grpGuesses.Controls.Add(this.btnLetter4);
@@ -58,18 +63,18 @@
             this.grpGuesses.Dock = System.Windows.Forms.DockStyle.Top;
             this.grpGuesses.Location = new System.Drawing.Point(0, 0);
             this.grpGuesses.Name = "grpGuesses";
-            this.grpGuesses.Size = new System.Drawing.Size(464, 67);
+            this.grpGuesses.Size = new System.Drawing.Size(544, 67);
             this.grpGuesses.TabIndex = 0;
             this.grpGuesses.TabStop = false;
             this.grpGuesses.Text = "Guesses";
             // 
             // btnSetRules
             // 
-            this.btnSetRules.Location = new System.Drawing.Point(283, 30);
+            this.btnSetRules.Location = new System.Drawing.Point(291, 30);
             this.btnSetRules.Name = "btnSetRules";
             this.btnSetRules.Size = new System.Drawing.Size(120, 31);
             this.btnSetRules.TabIndex = 6;
-            this.btnSetRules.Text = "Set Rules";
+            this.btnSetRules.Text = "&Set Rules";
             this.btnSetRules.UseVisualStyleBackColor = true;
             this.btnSetRules.Click += new System.EventHandler(this.btnSetRules_Click);
             // 
@@ -77,7 +82,7 @@
             // 
             this.btnLetter5.BackColor = System.Drawing.Color.White;
             this.btnLetter5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLetter5.Location = new System.Drawing.Point(246, 30);
+            this.btnLetter5.Location = new System.Drawing.Point(254, 30);
             this.btnLetter5.Name = "btnLetter5";
             this.btnLetter5.Size = new System.Drawing.Size(31, 31);
             this.btnLetter5.TabIndex = 5;
@@ -88,7 +93,7 @@
             // 
             this.btnLetter4.BackColor = System.Drawing.Color.White;
             this.btnLetter4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLetter4.Location = new System.Drawing.Point(209, 30);
+            this.btnLetter4.Location = new System.Drawing.Point(217, 30);
             this.btnLetter4.Name = "btnLetter4";
             this.btnLetter4.Size = new System.Drawing.Size(31, 31);
             this.btnLetter4.TabIndex = 4;
@@ -99,7 +104,7 @@
             // 
             this.btnLetter3.BackColor = System.Drawing.Color.White;
             this.btnLetter3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLetter3.Location = new System.Drawing.Point(172, 30);
+            this.btnLetter3.Location = new System.Drawing.Point(180, 30);
             this.btnLetter3.Name = "btnLetter3";
             this.btnLetter3.Size = new System.Drawing.Size(31, 31);
             this.btnLetter3.TabIndex = 3;
@@ -110,7 +115,7 @@
             // 
             this.btnLetter2.BackColor = System.Drawing.Color.White;
             this.btnLetter2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLetter2.Location = new System.Drawing.Point(135, 30);
+            this.btnLetter2.Location = new System.Drawing.Point(143, 30);
             this.btnLetter2.Name = "btnLetter2";
             this.btnLetter2.Size = new System.Drawing.Size(31, 31);
             this.btnLetter2.TabIndex = 2;
@@ -121,7 +126,7 @@
             // 
             this.btnLetter1.BackColor = System.Drawing.Color.White;
             this.btnLetter1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnLetter1.Location = new System.Drawing.Point(98, 30);
+            this.btnLetter1.Location = new System.Drawing.Point(106, 30);
             this.btnLetter1.Name = "btnLetter1";
             this.btnLetter1.Size = new System.Drawing.Size(31, 31);
             this.btnLetter1.TabIndex = 1;
@@ -134,9 +139,10 @@
             this.txtGuess.Location = new System.Drawing.Point(12, 30);
             this.txtGuess.Mask = "?????";
             this.txtGuess.Name = "txtGuess";
-            this.txtGuess.Size = new System.Drawing.Size(80, 31);
+            this.txtGuess.Size = new System.Drawing.Size(88, 31);
             this.txtGuess.TabIndex = 0;
             this.txtGuess.TextChanged += new System.EventHandler(this.txtGuess_TextChanged);
+            this.txtGuess.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtGuess_KeyDown);
             // 
             // grpRules
             // 
@@ -145,7 +151,7 @@
             this.grpRules.Dock = System.Windows.Forms.DockStyle.Top;
             this.grpRules.Location = new System.Drawing.Point(0, 67);
             this.grpRules.Name = "grpRules";
-            this.grpRules.Size = new System.Drawing.Size(464, 188);
+            this.grpRules.Size = new System.Drawing.Size(544, 188);
             this.grpRules.TabIndex = 1;
             this.grpRules.TabStop = false;
             this.grpRules.Text = "Rules";
@@ -159,7 +165,7 @@
             this.lstRules.LabelWrap = false;
             this.lstRules.Location = new System.Drawing.Point(12, 30);
             this.lstRules.Name = "lstRules";
-            this.lstRules.Size = new System.Drawing.Size(403, 152);
+            this.lstRules.Size = new System.Drawing.Size(483, 152);
             this.lstRules.TabIndex = 1;
             this.lstRules.UseCompatibleStateImageBehavior = false;
             // 
@@ -167,38 +173,81 @@
             // 
             this.btnClearRules.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnClearRules.Location = new System.Drawing.Point(421, 30);
+            this.btnClearRules.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.btnClearRules.Location = new System.Drawing.Point(501, 30);
             this.btnClearRules.Name = "btnClearRules";
             this.btnClearRules.Size = new System.Drawing.Size(31, 152);
             this.btnClearRules.TabIndex = 0;
-            this.btnClearRules.Text = "X";
+            this.btnClearRules.Text = "&X";
             this.btnClearRules.UseVisualStyleBackColor = true;
             this.btnClearRules.Click += new System.EventHandler(this.btnClearRules_Click);
             // 
             // grpSuggestions
             // 
+            this.grpSuggestions.Controls.Add(this.btnLoad);
+            this.grpSuggestions.Controls.Add(this.btnRemoveWord);
             this.grpSuggestions.Controls.Add(this.lstSuggestions);
             this.grpSuggestions.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpSuggestions.Location = new System.Drawing.Point(0, 255);
             this.grpSuggestions.Name = "grpSuggestions";
-            this.grpSuggestions.Size = new System.Drawing.Size(464, 506);
+            this.grpSuggestions.Size = new System.Drawing.Size(544, 506);
             this.grpSuggestions.TabIndex = 2;
             this.grpSuggestions.TabStop = false;
-            this.grpSuggestions.Text = "Suggestions";
+            this.grpSuggestions.Text = "S&uggestions";
+            // 
+            // btnLoad
+            // 
+            this.btnLoad.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLoad.Location = new System.Drawing.Point(352, 463);
+            this.btnLoad.Name = "btnLoad";
+            this.btnLoad.Size = new System.Drawing.Size(180, 31);
+            this.btnLoad.TabIndex = 2;
+            this.btnLoad.Text = "&Load Dictionary";
+            this.btnLoad.UseVisualStyleBackColor = true;
+            this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
+            // 
+            // btnRemoveWord
+            // 
+            this.btnRemoveWord.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnRemoveWord.Location = new System.Drawing.Point(12, 463);
+            this.btnRemoveWord.Name = "btnRemoveWord";
+            this.btnRemoveWord.Size = new System.Drawing.Size(180, 31);
+            this.btnRemoveWord.TabIndex = 1;
+            this.btnRemoveWord.Text = "&Remove Word";
+            this.btnRemoveWord.UseVisualStyleBackColor = true;
+            this.btnRemoveWord.Click += new System.EventHandler(this.btnRemoveWord_Click);
             // 
             // lstSuggestions
             // 
-            this.lstSuggestions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstSuggestions.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.lstSuggestions.HideSelection = false;
             this.lstSuggestions.LabelWrap = false;
-            this.lstSuggestions.Location = new System.Drawing.Point(3, 27);
+            this.lstSuggestions.Location = new System.Drawing.Point(12, 30);
             this.lstSuggestions.MultiSelect = false;
             this.lstSuggestions.Name = "lstSuggestions";
-            this.lstSuggestions.Size = new System.Drawing.Size(458, 476);
-            this.lstSuggestions.TabIndex = 2;
+            this.lstSuggestions.Size = new System.Drawing.Size(520, 427);
+            this.lstSuggestions.TabIndex = 0;
             this.lstSuggestions.UseCompatibleStateImageBehavior = false;
             this.lstSuggestions.View = System.Windows.Forms.View.SmallIcon;
             this.lstSuggestions.SelectedIndexChanged += new System.EventHandler(this.lstSuggestions_SelectedIndexChanged);
+            // 
+            // ofdLoad
+            // 
+            this.ofdLoad.DefaultExt = "txt";
+            // 
+            // btnReset
+            // 
+            this.btnReset.BackColor = System.Drawing.Color.White;
+            this.btnReset.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnReset.Location = new System.Drawing.Point(501, 30);
+            this.btnReset.Name = "btnReset";
+            this.btnReset.Size = new System.Drawing.Size(31, 31);
+            this.btnReset.TabIndex = 7;
+            this.btnReset.Text = "&0";
+            this.btnReset.UseVisualStyleBackColor = false;
+            this.btnReset.Click += new System.EventHandler(this.btnReset_Click);
             // 
             // MainForm
             // 
@@ -206,7 +255,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnClearRules;
-            this.ClientSize = new System.Drawing.Size(464, 761);
+            this.ClientSize = new System.Drawing.Size(544, 761);
             this.Controls.Add(this.grpSuggestions);
             this.Controls.Add(this.grpRules);
             this.Controls.Add(this.grpGuesses);
@@ -216,6 +265,7 @@
             this.ShowIcon = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Wordlin";
+            this.TopMost = true;
             this.Load += new System.EventHandler(this.MainForm_Load);
             this.grpGuesses.ResumeLayout(false);
             this.grpGuesses.PerformLayout();
@@ -239,5 +289,9 @@
         private System.Windows.Forms.Button btnClearRules;
         private System.Windows.Forms.GroupBox grpSuggestions;
         private System.Windows.Forms.ListView lstSuggestions;
+        private System.Windows.Forms.Button btnRemoveWord;
+        private System.Windows.Forms.Button btnLoad;
+        private System.Windows.Forms.OpenFileDialog ofdLoad;
+        private System.Windows.Forms.Button btnReset;
     }
 }

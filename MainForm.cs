@@ -9,12 +9,12 @@ namespace Wordlin
 {
     public partial class MainForm : Form
     {
-        const string FILE_NAME = "words5.txt";
         const int MAX_WORD_COUNT = 500;
 
-        readonly List<string> _allWords = File.ReadAllLines(FILE_NAME).ToList();
+        readonly List<string> _allWords = new List<string>();
         readonly PositionRule[] _positionRule = new PositionRule[5];
         readonly Dictionary<string, LetterRule> _letterRule = new Dictionary<string, LetterRule>();
+        string fileName = "words5.txt";
 
         public MainForm()
         {
@@ -73,6 +73,26 @@ namespace Wordlin
                 _positionRule[i] = new PositionRule(i);
         }
 
+        void ChangeLetterRule(Button c)
+        {
+            var pr = _positionRule[c.TabIndex - 1];
+            pr.Letter = c.Text;
+            pr.Rule = (Rule)(((int)pr.Rule + 1) % 3);
+            switch (pr.Rule)
+            {
+                case Rule.Exclude: c.BackColor = Color.White; break;
+                case Rule.Include: c.BackColor = Color.Yellow; break;
+                case Rule.Fixed: c.BackColor = Color.Green; break;
+            }
+        }
+
+        void ResetRules()
+        {
+            foreach (var pr in _positionRule)
+                pr.Rule = Rule.Exclude;
+            btnLetter1.BackColor = btnLetter2.BackColor = btnLetter3.BackColor = btnLetter4.BackColor = btnLetter5.BackColor = Color.White;
+        }
+
         void BindRules()
         {
             lstRules.Items.Clear();
@@ -86,7 +106,7 @@ namespace Wordlin
             }
         }
 
-        void InitializeDictionary(string fileName)
+        void InitializeDictionary()
         {
             _allWords.Clear();
             _allWords.AddRange(File.ReadAllLines(fileName));
@@ -95,7 +115,7 @@ namespace Wordlin
         private void MainForm_Load(object sender, EventArgs e)
         {
             InitializeRules();
-            InitializeDictionary(FILE_NAME);
+            InitializeDictionary();
         }
 
         private void txtGuess_TextChanged(object sender, EventArgs e)
@@ -116,15 +136,7 @@ namespace Wordlin
         private void btnLetter_Click(object sender, EventArgs e)
         {
             var c = sender as Button;
-            var pr = _positionRule[c.TabIndex - 1];
-            pr.Letter = c.Text;
-            pr.Rule = (Rule)(((int)pr.Rule + 1) % 3);
-            switch (pr.Rule)
-            {
-                case Rule.Exclude: c.BackColor = Color.White; break;
-                case Rule.Include: c.BackColor = Color.Yellow; break;
-                case Rule.Fixed: c.BackColor = Color.Green; break;
-            }
+            ChangeLetterRule(c);
         }
 
         private void btnSetRules_Click(object sender, EventArgs e)
@@ -176,6 +188,7 @@ namespace Wordlin
         private void btnClearRules_Click(object sender, EventArgs e)
         {
             _letterRule.Clear();
+            ResetRules();
             BindRules();
         }
 
@@ -183,6 +196,55 @@ namespace Wordlin
         {
             if (lstSuggestions.SelectedItems.Count > 0)
                 txtGuess.Text = lstSuggestions.SelectedItems[0].Text;
+        }
+
+        private void btnRemoveWord_Click(object sender, EventArgs e)
+        {
+            if (lstSuggestions.SelectedItems.Count > 0)
+            {
+                var w = lstSuggestions.SelectedItems[0].Text.ToLower();
+                _allWords.Remove(w);
+                File.WriteAllLines(fileName, _allWords.ToArray());
+            }
+        }
+
+        private void btnLoad_Click(object sender, EventArgs e)
+        {
+            if (ofdLoad.ShowDialog(this) == DialogResult.OK)
+            {
+                fileName = ofdLoad.FileName;
+                InitializeDictionary();
+            }
+        }
+
+        private void txtGuess_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Modifiers == Keys.Alt)
+            {
+                if (e.KeyCode == Keys.D0)
+                {
+                    ResetRules();
+                }
+                else
+                {
+                    Button c = null;
+                    switch (e.KeyCode)
+                    {
+                        case Keys.D1: c = btnLetter1; break;
+                        case Keys.D2: c = btnLetter2; break;
+                        case Keys.D3: c = btnLetter3; break;
+                        case Keys.D4: c = btnLetter4; break;
+                        case Keys.D5: c = btnLetter5; break;
+                    }
+                    if (c != null)
+                        ChangeLetterRule(c);
+                }
+            }
+        }
+
+        private void btnReset_Click(object sender, EventArgs e)
+        {
+            ResetRules();
         }
     }
 }
