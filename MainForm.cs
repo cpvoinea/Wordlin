@@ -183,6 +183,7 @@ namespace Wordlin
 
             BindRules();
             ShowWords();
+            txtGuess.SelectAll();
         }
 
         private void btnClearRules_Click(object sender, EventArgs e)
@@ -219,26 +220,23 @@ namespace Wordlin
 
         private void txtGuess_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.Modifiers == Keys.Alt)
+            if (e.KeyCode == Keys.D0)
             {
-                if (e.KeyCode == Keys.D0)
+                ResetRules();
+            }
+            else
+            {
+                Button c = null;
+                switch (e.KeyCode)
                 {
-                    ResetRules();
+                    case Keys.D1: c = btnLetter1; break;
+                    case Keys.D2: c = btnLetter2; break;
+                    case Keys.D3: c = btnLetter3; break;
+                    case Keys.D4: c = btnLetter4; break;
+                    case Keys.D5: c = btnLetter5; break;
                 }
-                else
-                {
-                    Button c = null;
-                    switch (e.KeyCode)
-                    {
-                        case Keys.D1: c = btnLetter1; break;
-                        case Keys.D2: c = btnLetter2; break;
-                        case Keys.D3: c = btnLetter3; break;
-                        case Keys.D4: c = btnLetter4; break;
-                        case Keys.D5: c = btnLetter5; break;
-                    }
-                    if (c != null)
-                        ChangeLetterRule(c);
-                }
+                if (c != null)
+                    ChangeLetterRule(c);
             }
         }
 
